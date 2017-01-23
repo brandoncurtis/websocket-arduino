@@ -55,4 +55,5 @@ WORKS - v4a.py has some minor refactoring and tweaks for working with 555.html
 ## To Do
 
 + implement security on write operations
-+ using `logging` module to write data to logfile
++ write incoming data to logfile
++ handle incoming data in a separate thread/process
