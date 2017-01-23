@@ -20,6 +20,12 @@ WORKS - v4.py also has data lookback when the websocket is created.
 
 WORKS - v5.py adds additional input checking and has support for multiple data inputs.
 
+## V4a
+
+WORKS - v4a.py has some minor refactoring and tweaks for working with 555.html
+
+**THIS** was the point where everything was version controlled in its own repository!
+
 ----
 
 ## To Do
