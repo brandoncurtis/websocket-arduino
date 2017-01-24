@@ -2,6 +2,15 @@
 <script src="js/smoothie.js"></script>
 
 <script>
+console.log = function() {}
+
+var PLOTWIDTH = 600;
+var PLOTHEIGHT = 300;
+var PLOTMINUTES = 60;
+var PLOTMAX = 25;
+var PLOTMIN = 10;
+var DELAYTRIGGERMILLIS = 250;
+
 // parse arguments from URL
 // www.mysite.com/my_app.html?x=1234
 var GET = {};
@@ -13,36 +22,28 @@ for (var i = 0, max = query.length; i < max; i++) {
   GET[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || "");
 }
 
-//var ws = new WebSocket('ws://lcurtis-router.homenet.org:8801/');
 var ws = new WebSocket('ws://bcurtis-router.homenet.org:8765/');
-var dataArr = [];
-// TODO: determine this dynamically
-var MSPERPOINT = 1000;
 
-var NUMLINES = 720;
 if ( Number.isInteger(parseInt(GET.lookback)) ) {
-  NUMLINES = parseInt(parseFloat(GET.lookback)*60000/MSPERPOINT);
+  PLOTMINUTES = parseFloat(GET.lookback);
 }
 
-var PLOTMAX = 25;
-if ( Number.isInteger(parseInt(GET.tmax)) ) {
-  PLOTMAX = parseFloat(GET.tmax);
+if ( Number.isInteger(parseInt(GET.ymax)) ) {
+  PLOTMAX = parseFloat(GET.ymax);
 }
 
-var PLOTMIN = 10;
-if ( Number.isInteger(parseInt(GET.tmin)) ) {
-  PLOTMIN = parseFloat(GET.tmin);
+if ( Number.isInteger(parseInt(GET.ymin)) ) {
+  PLOTMIN = parseFloat(GET.ymin);
 }
 
-var PLOTWIDTH = 600;
-var PLOTHEIGHT = 300;
-var MILLISPERLINE = NUMLINES * MSPERPOINT / 5;
+var PLOTMILLIS = PLOTMINUTES*60000
+var MILLISPERLINE = PLOTMILLIS / 5;
 
 // create the chart stuff
 var mytimeline = new TimeSeries();
 var mytimeline2 = new TimeSeries();
 
-var chart = new SmoothieChart({millisPerPixel:NUMLINES*MSPERPOINT/PLOTWIDTH,
+var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,verticalSections: (PLOTMAX-PLOTMIN)},
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     timestampFormatter: function(date) {
@@ -55,19 +56,12 @@ var chart = new SmoothieChart({millisPerPixel:NUMLINES*MSPERPOINT/PLOTWIDTH,
     yMaxFormatter: function(max, precision) {
       return parseFloat(max).toFixed(precision).toString() + String.fromCharCode(0x00b0) + "C";
     },
-    interpolation:'step',maxDataSetLength: NUMLINES,maxValue:PLOTMAX,minValue:PLOTMIN});
+    interpolation:'step',maxValue:PLOTMAX,minValue:PLOTMIN});
 
 chart.addTimeSeries(mytimeline, { strokeStyle: 'rgba(0, 255, 0, 1)',
     fillStyle: 'rgba(0, 255, 0, 0.0)', lineWidth: 3 });
 chart.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 0, 255, 1)',
     fillStyle: 'rgba(0, 0, 255, 0.0)', lineWidth: 3 });
-
-var firstRun = true;
-var dataStartTime;
-var dataDuration;
-var chartDelay;
-var runStart = Date.now();
-var PLOTDELAY = 3000;
 
 function myLoading() {
   console.log("Loading data...");
@@ -81,47 +75,45 @@ function myLoading() {
     document.getElementById("in_lookback").value = parseFloat(GET.lookback);
   }
 
-  if ( Number.isInteger(parseInt(GET.tmin)) ) {
-    document.getElementById("in_tmin").value = parseInt(GET.tmin);
+  if ( Number.isInteger(parseInt(GET.ymin)) ) {
+    document.getElementById("in_ymin").value = parseInt(GET.ymin);
   }
 
-  if ( Number.isInteger(parseInt(GET.tmax)) ) {
-    document.getElementById("in_tmax").value = parseInt(GET.tmax);
+  if ( Number.isInteger(parseInt(GET.ymax)) ) {
+    document.getElementById("in_ymax").value = parseInt(GET.ymax);
   }
 }
 
+var firstRun = true;
+var ptTime;
+var ptVal;
+var ptVal2;
+var timeLastMsg;
+
 // put in the data for the chart
 ws.onmessage = function(e){
+  timeNow = Date.now();
+  msgDelay = timeNow - timeLastMsg;
+  // when the lookback data is all loaded up, now it's time to plot
+    if (timeLastMsg && firstRun && msgDelay > DELAYTRIGGERMILLIS) {
+      // delay by the current time minus the time of the NEWEST timepoint
+      var chartDelay = timeNow-ptTime;
+      chart.streamTo(document.getElementById("chart"), chartDelay);
+      console.log(Date.now() + ": plotting started!");
+      firstRun = false;
+    }
+
+  timeLastMsg = Date.now();
   console.log(e.data);
   var line = e.data.split(',');
   if (line.length == 3) {
-    var ptTime = parseInt(line[0]);
-    var ptVal = parseFloat(line[1]);
-    var ptVal2 = parseFloat(line[2]);
-
-    //var ptVal = 15+10*Math.random();
+    ptTime = parseInt(line[0]);
+    ptVal = parseFloat(line[1]);
+    ptVal2 = parseFloat(line[2]);
     mytimeline.append(ptTime, ptVal);
     mytimeline2.append(ptTime, ptVal2);
-
-    dataArr.unshift(line);
-    if (dataArr.length > NUMLINES) {
-        dataArr.pop();
-    }
-    console.log(dataArr.length);
-    console.log(ptTime);
-    console.log(ptVal);
-    console.log(ptVal2);
+    console.log(ptTime + ',' + ptVal + ',' + ptVal2);
     document.getElementById("curtemp").innerHTML = ptVal.toString();
-
-    // this is where the lookback magic happens
-    if (firstRun && Date.now() - PLOTDELAY > runStart) {
-      dataStartTime = parseInt(dataArr[dataArr.length-1][0]);
-      dataDuration = ptTime-dataStartTime;
-      chartDelay = Date.now()-dataStartTime-dataDuration;
-      chart.streamTo(document.getElementById("chart"), chartDelay);
-      console.log("plotting started!");
-      firstRun = false;
-    }
   }
 }
 
@@ -150,10 +142,10 @@ function mysend() {
         <input id="in_lookback" name="lookback" value="60" type="text"
             size=5 style="float:right;"><br>
       Minimum temperature:
-        <input id="in_tmin" name="tmin" value="10" type="text"
+        <input id="in_ymin" name="ymin" value="10" type="text"
             size=5 style="float:right;"><br>
       Maximum temperature:
-        <input id="in_tmax" name="tmax" value="25" type="text"
+        <input id="in_ymax" name="ymax" value="25" type="text"
             size=5 style="float:right;"><br>
       <div style="text-align:center;">
         <input type="submit" value="Adjust View"

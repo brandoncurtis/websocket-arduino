@@ -2,6 +2,14 @@
 <script src="js/smoothie.js"></script>
 
 <script>
+console.log = function() {}
+
+var PLOTWIDTH = 600;
+var PLOTHEIGHT = 300;
+var PLOTMINUTES = 0.25;
+var PLOTMAX = 1000;
+var PLOTMIN = 0;
+
 // parse arguments from URL
 // www.mysite.com/my_app.html?x=1234
 var GET = {};
@@ -14,32 +22,27 @@ for (var i = 0, max = query.length; i < max; i++) {
 }
 
 var ws = new WebSocket('ws://169.229.198.105:8801/');
-var MSPERPOINT = 50;
 
-var NUMLINES = 300;
 if ( Number.isInteger(parseInt(GET.lookback)) ) {
-  NUMLINES = parseInt(parseFloat(GET.lookback)*60000/MSPERPOINT);
+  PLOTMINUTES = parseFloat(GET.lookback);
 }
 
-var PLOTMAX = 1000;
 if ( Number.isInteger(parseInt(GET.ymax)) ) {
   PLOTMAX = parseFloat(GET.ymax);
 }
 
-var PLOTMIN = 0;
 if ( Number.isInteger(parseInt(GET.ymin)) ) {
   PLOTMIN = parseFloat(GET.ymin);
 }
 
-var PLOTWIDTH = 600;
-var PLOTHEIGHT = 300;
-var MILLISPERLINE = NUMLINES * MSPERPOINT / 5;
+var PLOTMILLIS = PLOTMINUTES*60000
+var MILLISPERLINE = PLOTMILLIS / 5;
 
 // create the chart stuff
 var mytimeline = new TimeSeries();
 var mytimeline2 = new TimeSeries();
 
-var chart = new SmoothieChart({millisPerPixel:NUMLINES*MSPERPOINT/PLOTWIDTH,
+var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     grid:{fillStyle:'#ffffff', millisPerLine:MILLISPERLINE,verticalSections: (PLOTMAX-PLOTMIN)/100},
     labels:{fillStyle:'#000000', fontSize:16, precision:0},
     timestampFormatter: function(date) {
@@ -52,14 +55,12 @@ var chart = new SmoothieChart({millisPerPixel:NUMLINES*MSPERPOINT/PLOTWIDTH,
     yMaxFormatter: function(max, precision) {
       return parseFloat(max).toFixed(precision).toString();
     },
-    interpolation:'step',maxDataSetLength: NUMLINES,maxValue:PLOTMAX,minValue:PLOTMIN});
+    interpolation:'step',maxValue:PLOTMAX,minValue:PLOTMIN});
 
 chart.addTimeSeries(mytimeline, { strokeStyle: 'rgba(0, 255, 0, 1)',
     fillStyle: 'rgba(0, 255, 0, 0.3)', lineWidth: 4 });
 chart.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 0, 255, 1)',
     fillStyle: 'rgba(0, 0, 255, 0.15)', lineWidth: 1 });
-
-var firstRun = true;
 
 function myLoading() {
   if ( Number.isInteger(parseInt(GET.lookback)) ) {
@@ -73,6 +74,8 @@ function myLoading() {
   }
 }
 
+var firstRun = true;
+
 // put in the data for the chart
 ws.onmessage = function(e){
   var line = e.data.split(',');
@@ -82,7 +85,7 @@ ws.onmessage = function(e){
     var ptVal2 = parseFloat(line[0]);
     mytimeline.append(ptTime, ptVal);
     mytimeline2.append(ptTime, ptVal2);
-
+    console.log(ptTime + ',' + ptVal + ',' + ptVal2);
     document.getElementById("curVal").innerHTML = ptVal.toString();
 
     if (firstRun) {
