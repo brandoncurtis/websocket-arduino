@@ -2,14 +2,16 @@
 <script src="js/smoothie.js"></script>
 
 <script>
-console.log = function() {}
+//console.log = function() {}
 
 var PLOTWIDTH = 600;
 var PLOTHEIGHT = 300;
-var PLOTMINUTES = 60;
+var PLOTMINUTES = 600;
 var PLOTMAX = 25;
 var PLOTMIN = 10;
-var DELAYTRIGGERMILLIS = 500;
+var DELAYTRIGGERMILLIS = 900;
+var DELAYCOUNTS = 0;
+var DELAYCOUNTSTRIGGER = 3;
 
 // parse arguments from URL
 // of the form www.mysite.com/my_app.html?x=1234
@@ -39,7 +41,10 @@ if ( Number.isInteger(parseInt(GET.ymin)) ) {
 var PLOTMILLIS = PLOTMINUTES * 60000;
 //var MILLISPERLINE = PLOTMILLIS / 5;
 var MILLISPERLINE;
-if (PLOTMINUTES >= 30) {
+if (PLOTMINUTES >= 360) {
+  MILLISPERLINE = 3600000 * Math.floor(Math.round(PLOTMINUTES/60)/6);
+}
+else if (PLOTMINUTES >= 30) {
   MILLISPERLINE = (60000 * Math.round(PLOTMINUTES/60)*60) / 6;
 }
 else if (PLOTMINUTES >= 3) {
@@ -58,14 +63,9 @@ var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     timestampFormatter: function(date) {
       function pad2(number) { return (number < 10 ? '0' : '') + number }
-      var realtimems = Date.parse(date) + chartDelay;
-      var realtime = new Date(realtimems);
-      var ts;
-      if (PLOTMINUTES >= 10) {
-        ts = pad2(realtime.getHours()) + ':' + pad2(realtime.getMinutes());
-      }
-      else {
-        ts = pad2(realtime.getHours()) + ':' + pad2(realtime.getMinutes()) + ':' + pad2(realtime.getSeconds());
+      var ts = pad2(date.getHours()) + ':' + pad2(date.getMinutes());
+      if (PLOTMINUTES < 10) {
+        ts += ':' + pad2(date.getSeconds());
       }
       return ts;
     },
@@ -108,26 +108,39 @@ var ptTime;
 var ptVal;
 var ptVal2;
 var timeLastMsg;
-var chartDelay;
+var chartDelay = 0;
+
+function adjustTimestamp(element,index,array){
+  array[index][0] = element[0]+chartDelay;
+}
 
 // put in the data for the chart
 ws.onmessage = function(e){
   timeNow = Date.now();
   msgDelay = timeNow - timeLastMsg;
 
+  if (firstRun && msgDelay > DELAYTRIGGERMILLIS) {
+    DELAYCOUNTS += 1;
+    console.log("DELAYCOUNTS: " + DELAYCOUNTS + ", " + Date.now());
+  }
+
   // when the lookback data is all loaded up, now it's time to plot
-    if (timeLastMsg && firstRun && msgDelay > DELAYTRIGGERMILLIS) {
-      // delay by the current time minus the time of the NEWEST timepoint
-      chartDelay = timeNow - ptTime;
-      chart.streamTo(document.getElementById("chart"), chartDelay);
-      console.log(Date.now() + ": plotting started!");
-      firstRun = false;
-    }
+  if (firstRun && DELAYCOUNTS >= DELAYCOUNTSTRIGGER) {
+    // delay by the current time minus the time of the NEWEST timepoint
+    chartDelay = timeNow - ptTime;
+    chart.seriesSet.forEach(function(element,index,array) {
+      element.timeSeries.data.forEach(adjustTimestamp);
+    });
+    chart.streamTo(document.getElementById("chart"));
+    console.log(Date.now() + ": plotting started!");
+    firstRun = false;
+  }
+
   timeLastMsg = Date.now();
-  console.log(e.data);
+  //console.log(e.data);
   var line = e.data.split(',');
   if (line.length == 3) {
-    ptTime = parseInt(line[0]);
+    ptTime = parseInt(line[0]) + chartDelay;
     ptVal = parseFloat(line[1]);
     ptVal2 = parseFloat(line[2]);
     mytimeline.append(ptTime, ptVal);
@@ -148,7 +161,7 @@ function mysend() {
 <body onload="myLoading()">
 <h1>Fresh Data, Served Every Five Seconds</h1>
 
-<div>
+<div style="display:none;">
 	what's your name?
 	<input id="in_msg" type="text">
 	<button onclick=mysend()>what up</button>
@@ -159,7 +172,7 @@ function mysend() {
     <p>Wonder what temperature it is at home? With Arduino, Websockets, and JS, wonder no more.
     <form style="width:270px;line-height: 1.5;border:4px solid black;padding:5px;">
       Minutes to look back:
-        <input id="in_lookback" name="lookback" value="60" type="text"
+        <input id="in_lookback" name="lookback" value="600" type="text"
             size=5 style="float:right;"><br>
       Minimum temperature:
         <input id="in_ymin" name="ymin" value="10" type="text"
