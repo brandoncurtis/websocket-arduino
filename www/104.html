@@ -48,7 +48,7 @@ var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     timestampFormatter: function(date) {
       function pad2(number) { return (number < 10 ? '0' : '') + number }
-      var realtime = Date.now() + date - dataStartTime;
+      var realtime = date + chartDelay;
       return pad2(realtime.getHours()) + ':' + pad2(realtime.getMinutes()) + ':' + pad2(realtime.getSeconds());
     },
     yMinFormatter: function(min, precision) {
@@ -90,20 +90,21 @@ var ptTime;
 var ptVal;
 var ptVal2;
 var timeLastMsg;
+var chartDelay;
 
 // put in the data for the chart
 ws.onmessage = function(e){
   timeNow = Date.now();
   msgDelay = timeNow - timeLastMsg;
+
   // when the lookback data is all loaded up, now it's time to plot
     if (timeLastMsg && firstRun && msgDelay > DELAYTRIGGERMILLIS) {
       // delay by the current time minus the time of the NEWEST timepoint
-      var chartDelay = timeNow-ptTime;
+      chartDelay = timeNow - ptTime;
       chart.streamTo(document.getElementById("chart"), chartDelay);
       console.log(Date.now() + ": plotting started!");
       firstRun = false;
     }
-
   timeLastMsg = Date.now();
   console.log(e.data);
   var line = e.data.split(',');
