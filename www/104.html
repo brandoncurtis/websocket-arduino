@@ -2,7 +2,7 @@
 <script src="js/smoothie.js"></script>
 
 <script>
-//console.log = function() {}
+console.log = function() {}
 
 var PLOTWIDTH = 600;
 var PLOTHEIGHT = 300;
@@ -12,7 +12,7 @@ var PLOTMIN = 10;
 var DELAYTRIGGERMILLIS = 500;
 
 // parse arguments from URL
-// of the formwww.mysite.com/my_app.html?x=1234
+// of the form www.mysite.com/my_app.html?x=1234
 var GET = {};
 var query = window.location.search.substring(1).split("&");
 for (var i = 0, max = query.length; i < max; i++) {
@@ -51,7 +51,6 @@ var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
       var realtimems = Date.parse(date) + chartDelay;
       var realtime = new Date(realtimems);
       return pad2(realtime.getHours()) + ':' + pad2(realtime.getMinutes()) + ':' + pad2(realtime.getSeconds());
-      //return pad2(date.getHours()) + ':' + pad2(date.getMinutes()) + ':' + pad2(date.getSeconds());
     },
     yMinFormatter: function(min, precision) {
       return parseFloat(min).toFixed(precision).toString() + String.fromCharCode(0x00b0) + "C";
