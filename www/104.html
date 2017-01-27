@@ -36,8 +36,18 @@ if ( Number.isInteger(parseInt(GET.ymin)) ) {
   PLOTMIN = parseFloat(GET.ymin);
 }
 
-var PLOTMILLIS = PLOTMINUTES*60000
-var MILLISPERLINE = PLOTMILLIS / 5;
+var PLOTMILLIS = PLOTMINUTES * 60000;
+//var MILLISPERLINE = PLOTMILLIS / 5;
+var MILLISPERLINE;
+if (PLOTMINUTES >= 30) {
+  MILLISPERLINE = (60000 * Math.round(PLOTMINUTES/60)*60) / 6;
+}
+else if (PLOTMINUTES >= 3) {
+  MILLISPERLINE = Math.max(60000*Math.round(PLOTMINUTES/6),60000);
+}
+else {
+  MILLISPERLINE = PLOTMILLIS / 5;
+}
 
 // create the chart stuff
 var mytimeline = new TimeSeries();
@@ -50,7 +60,14 @@ var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
       function pad2(number) { return (number < 10 ? '0' : '') + number }
       var realtimems = Date.parse(date) + chartDelay;
       var realtime = new Date(realtimems);
-      return pad2(realtime.getHours()) + ':' + pad2(realtime.getMinutes()) + ':' + pad2(realtime.getSeconds());
+      var ts;
+      if (PLOTMINUTES >= 10) {
+        ts = pad2(realtime.getHours()) + ':' + pad2(realtime.getMinutes());
+      }
+      else {
+        ts = pad2(realtime.getHours()) + ':' + pad2(realtime.getMinutes()) + ':' + pad2(realtime.getSeconds());
+      }
+      return ts;
     },
     yMinFormatter: function(min, precision) {
       return parseFloat(min).toFixed(precision).toString() + String.fromCharCode(0x00b0) + "C";
