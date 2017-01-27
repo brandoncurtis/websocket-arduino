@@ -48,8 +48,13 @@ var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     timestampFormatter: function(date) {
       function pad2(number) { return (number < 10 ? '0' : '') + number }
-      var realtime = date + chartDelay;
-      return pad2(realtime.getHours()) + ':' + pad2(realtime.getMinutes()) + ':' + pad2(realtime.getSeconds());
+      console.log('date: ' + date);
+      console.log('dateparse: ' + Date.parse(date));
+      var realtime = Date.parse(date) + chartDelay;
+      console.log('realtime: ' + realtime);
+      console.log('realtime: ' + realtime);
+      //return pad2(realtime.getHours()) + ':' + pad2(realtime.getMinutes()) + ':' + pad2(realtime.getSeconds());
+      return pad2(date.getHours()) + ':' + pad2(date.getMinutes()) + ':' + pad2(date.getSeconds());
     },
     yMinFormatter: function(min, precision) {
       return parseFloat(min).toFixed(precision).toString() + String.fromCharCode(0x00b0) + "C";
