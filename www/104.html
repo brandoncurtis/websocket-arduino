@@ -74,10 +74,10 @@ var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
       return ts;
     },
     yMinFormatter: function(min, precision) {
-      return parseFloat(min).toFixed(precision).toString() + String.fromCharCode(0x00b0) + "C";
+      return parseFloat(min).toFixed(precision).toString(); //+ String.fromCharCode(0x00b0) + "C";
     },
     yMaxFormatter: function(max, precision) {
-      return parseFloat(max).toFixed(precision).toString() + String.fromCharCode(0x00b0) + "C";
+      return parseFloat(max).toFixed(precision).toString(); //+ String.fromCharCode(0x00b0) + "C";
     },
     interpolation:'step',maxValue:PLOTMAX,minValue:PLOTMIN});
 
@@ -156,8 +156,8 @@ ws.onmessage = function(e){
     ptVal3 = parseFloat(line[3]);
     ptVal4 = parseFloat(line[4]);
     mytimeline.append(ptTime, ptVal);
-    mytimeline2.append(ptTime, ptVal2/4.);
-    mytimeline3.append(ptTime, ptVal3-1000);
+    mytimeline2.append(ptTime, ptVal2);
+    mytimeline3.append(ptTime, ptVal3);
     mytimeline4.append(ptTime, ptVal4);
     console.log(ptTime + ',' + ptVal + ',' + ptVal2+ ',' + ptVal3+ ',' + ptVal4);
     document.getElementById("cur_temp").innerHTML = ptVal.toFixed(1).toString();
@@ -204,7 +204,10 @@ function mysend() {
   </div>
 
 <div>
-  <p>Red = Temperature; Green = Humidity, RH%/4; Blue = Pressure, hPa-1000; Yellow = MG2
+  <p><span style="color:red;">Red = Temperature</span>;
+    <span style="color:green;">Green = Humidity, RH%</span>;
+    <span style="color:blue;">Blue = Pressure, hPa</span>;
+    <span style="color:yellow;">Yellow = MG2</span>
 </div>
 
 <div id="divchart" style="position:relative;">
