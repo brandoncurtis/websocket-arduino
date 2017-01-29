@@ -80,11 +80,11 @@ var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     },
     interpolation:'step',maxValue:PLOTMAX,minValue:PLOTMIN});
 
-chart.addTimeSeries(mytimeline, { strokeStyle: 'rgba(0, 255, 0, 1)',
+chart.addTimeSeries(mytimeline, { strokeStyle: 'rgba(255, 0, 0, 1)',
     fillStyle: 'rgba(0, 255, 0, 0.0)', lineWidth: 3 });
-chart.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 0, 255, 1)',
+chart.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 255, 0, 1)',
     fillStyle: 'rgba(0, 0, 255, 0.0)', lineWidth: 3 });
-chart.addTimeSeries(mytimeline3, { strokeStyle: 'rgba(255, 0, 0, 1)',
+chart.addTimeSeries(mytimeline3, { strokeStyle: 'rgba(0, 0, 255, 1)',
     fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
 chart.addTimeSeries(mytimeline4, { strokeStyle: 'rgba(255, 255, 0, 1)',
     fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
@@ -183,6 +183,7 @@ function mysend() {
 
 <div>
     <p>Wonder what temperature it is at home? With Arduino, Websockets, and JS, wonder no more.
+    <p>Red = Temperature; Green = Humidity/4; Blue = Pressure/50; Yellow = MG2
     <form style="width:270px;line-height: 1.5;border:4px solid black;padding:5px;">
       Minutes to look back:
         <input id="in_lookback" name="lookback" value="600" type="text"
