@@ -58,6 +58,8 @@ else {
 // create the chart stuff
 var mytimeline = new TimeSeries();
 var mytimeline2 = new TimeSeries();
+var mytimeline3 = new TimeSeries();
+var mytimeline4 = new TimeSeries();
 
 var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,verticalSections: (PLOTMAX-PLOTMIN)},
@@ -82,6 +84,10 @@ chart.addTimeSeries(mytimeline, { strokeStyle: 'rgba(0, 255, 0, 1)',
     fillStyle: 'rgba(0, 255, 0, 0.0)', lineWidth: 3 });
 chart.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 0, 255, 1)',
     fillStyle: 'rgba(0, 0, 255, 0.0)', lineWidth: 3 });
+chart.addTimeSeries(mytimeline3, { strokeStyle: 'rgba(255, 0, 0, 1)',
+    fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
+chart.addTimeSeries(mytimeline4, { strokeStyle: 'rgba(255, 255, 0, 1)',
+    fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
 
 function myLoading() {
   console.log("Loading data...");
@@ -108,6 +114,8 @@ var firstRun = true;
 var ptTime;
 var ptVal;
 var ptVal2;
+var ptVal3;
+var ptVal4;
 var timeLastMsg;
 var chartDelay = 0;
 
@@ -140,13 +148,17 @@ ws.onmessage = function(e){
   timeLastMsg = Date.now();
   //console.log(e.data);
   var line = e.data.split(',');
-  if (line.length == 3) {
+  if (line.length == 5) {
     ptTime = parseInt(line[0]) + chartDelay;
     ptVal = parseFloat(line[1]);
-    ptVal2 = parseFloat(line[2]);
+    ptVal2 = parseFloat(line[2])/4.;
+    ptVal3 = parseFloat(line[3])/50.;
+    ptVal4 = parseFloat(line[4]);
     mytimeline.append(ptTime, ptVal);
     mytimeline2.append(ptTime, ptVal2);
-    console.log(ptTime + ',' + ptVal + ',' + ptVal2);
+    mytimeline3.append(ptTime, ptVal3);
+    mytimeline4.append(ptTime, ptVal4);
+    console.log(ptTime + ',' + ptVal + ',' + ptVal2+ ',' + ptVal3+ ',' + ptVal4);
     document.getElementById("curtemp").innerHTML = ptVal.toString();
   }
 }
