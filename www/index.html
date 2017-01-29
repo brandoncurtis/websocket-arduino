@@ -1,5 +1,6 @@
 <head>
 <script src="js/smoothie.js"></script>
+<script src="js/reconnecting-websocket.js"></script>
 
 <script>
 console.log = function() {}
@@ -24,7 +25,7 @@ for (var i = 0, max = query.length; i < max; i++) {
   GET[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || "");
 }
 
-var ws = new WebSocket('ws://lcurtis-router.homenet.org:8801/');
+var ws = new ReconnectingWebSocket('ws://lcurtis-router.homenet.org:8801/');
 
 if ( Number.isInteger(parseInt(GET.lookback)) ) {
   PLOTMINUTES = parseFloat(GET.lookback);
