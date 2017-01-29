@@ -152,7 +152,7 @@ ws.onmessage = function(e){
     ptTime = parseInt(line[0]) + chartDelay;
     ptVal = parseFloat(line[1]);
     ptVal2 = parseFloat(line[2])/4.;
-    ptVal3 = parseFloat(line[3])/50.;
+    ptVal3 = parseFloat(line[3])-1000;
     ptVal4 = parseFloat(line[4]);
     mytimeline.append(ptTime, ptVal);
     mytimeline2.append(ptTime, ptVal2);
@@ -183,7 +183,7 @@ function mysend() {
 
 <div>
     <p>Wonder what temperature it is at home? With Arduino, Websockets, and JS, wonder no more.
-    <p>Red = Temperature; Green = Humidity/4; Blue = Pressure/50; Yellow = MG2
+    <p>Red = Temperature; Green = Humidity, RH%/4; Blue = Pressure, hPa-1000; Yellow = MG2
     <form style="width:270px;line-height: 1.5;border:4px solid black;padding:5px;">
       Minutes to look back:
         <input id="in_lookback" name="lookback" value="600" type="text"
