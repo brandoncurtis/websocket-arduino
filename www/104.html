@@ -1,5 +1,6 @@
 <head>
 <script src="js/smoothie.js"></script>
+<!-- https://github.com/joewalnes/reconnecting-websocket -->
 <script src="js/reconnecting-websocket.js"></script>
 
 <script>
@@ -151,15 +152,17 @@ ws.onmessage = function(e){
   if (line.length == 5) {
     ptTime = parseInt(line[0]) + chartDelay;
     ptVal = parseFloat(line[1]);
-    ptVal2 = parseFloat(line[2])/4.;
-    ptVal3 = parseFloat(line[3])-1000;
+    ptVal2 = parseFloat(line[2]);
+    ptVal3 = parseFloat(line[3]);
     ptVal4 = parseFloat(line[4]);
     mytimeline.append(ptTime, ptVal);
-    mytimeline2.append(ptTime, ptVal2);
-    mytimeline3.append(ptTime, ptVal3);
+    mytimeline2.append(ptTime, ptVal2/4.);
+    mytimeline3.append(ptTime, ptVal3-1000);
     mytimeline4.append(ptTime, ptVal4);
     console.log(ptTime + ',' + ptVal + ',' + ptVal2+ ',' + ptVal3+ ',' + ptVal4);
-    document.getElementById("curtemp").innerHTML = ptVal.toString();
+    document.getElementById("cur_temp").innerHTML = ptVal.toString();
+    document.getElementById("cur_press").innerHTML = ptVal3.toString();
+    document.getElementById("cur_rh").innerHTML = ptVal2.toString();
   }
 }
 
@@ -205,7 +208,17 @@ function mysend() {
   <div style="position:absolute; left:5px; top:5px; z-index:1;
       color:white; font-weight:bold; font-family:sans-serif;
       background-color:black;">
-    Current temperature: <span id="curtemp"></span>&#x00B0;C
+    Current temperature: <span id="cur_temp"></span>&#x00B0;C
+  </div>
+  <div style="position:absolute; left:5px; top:15px; z-index:1;
+      color:white; font-weight:bold; font-family:sans-serif;
+      background-color:black;">
+    Current pressure: <span id="cur_press"></span>hPa
+  </div>
+  <div style="position:absolute; left:5px; top:15px; z-index:1;
+      color:white; font-weight:bold; font-family:sans-serif;
+      background-color:black;">
+    Current humidity: <span id="cur_rh"></span>RH%
   </div>
   <canvas id="chart" width="600" height="300"
       style="position:absolute; z-index:0; border: 4px solid black;">

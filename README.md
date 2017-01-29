@@ -23,7 +23,7 @@ even implement a simple chat server!
 ## Using Python `websocket` and `serial-aio`
 
 You'll need to learn some asynchronous programming in Python, but this is a good starting
-point for more complex servers.
+point for more complex servers.  The Python `websocket` module with async support: https://github.com/aaugustin/websockets
 
 ### Software Versions
 
@@ -33,7 +33,7 @@ Only perform a subset of the desired message-passing operations (serial-to-webso
 
 #### V3
 
-WORKS - v3.py reads incoming data over the serial port and appends it to a list.  Once per second, the most recent 
+WORKS - v3.py reads incoming data over the serial port and appends it to a list.  Once per second, the most recent
 value in the list is written to the websocket.
 
 #### V4
