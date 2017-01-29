@@ -9,8 +9,6 @@ console.log = function() {}
 var PLOTWIDTH = 600;
 var PLOTHEIGHT = 300;
 var PLOTMINUTES = 600;
-var PLOTMAX = 25;
-var PLOTMIN = 10;
 var DELAYTRIGGERMILLIS = 900;
 var DELAYCOUNTS = 0;
 var DELAYCOUNTSTRIGGER = 3;
@@ -30,14 +28,6 @@ var ws = new ReconnectingWebSocket('ws://bcurtis-router.homenet.org:8765/');
 
 if ( Number.isInteger(parseInt(GET.lookback)) ) {
   PLOTMINUTES = parseFloat(GET.lookback);
-}
-
-if ( Number.isInteger(parseInt(GET.ymax)) ) {
-  PLOTMAX = parseFloat(GET.ymax);
-}
-
-if ( Number.isInteger(parseInt(GET.ymin)) ) {
-  PLOTMIN = parseFloat(GET.ymin);
 }
 
 var PLOTMILLIS = PLOTMINUTES * 60000;
@@ -62,37 +52,79 @@ var mytimeline2 = new TimeSeries();
 var mytimeline3 = new TimeSeries();
 var mytimeline4 = new TimeSeries();
 
-var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
-    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,verticalSections: (PLOTMAX-PLOTMIN)},
+function myYRangeFunction(range) {
+  // TODO implement your calculation using range.min and range.max
+  var min = Math.floor(range.min);
+  var max = Math.ceil(range.max);
+  return {min: min, max: max};
+}
+
+function myTSFunction(date) {
+  function pad2(number) { return (number < 10 ? '0' : '') + number }
+  var ts = pad2(date.getHours()) + ':' + pad2(date.getMinutes());
+  if (PLOTMINUTES < 10) {
+    ts += ':' + pad2(date.getSeconds());
+  }
+  return ts;
+}
+
+function myYLineFunction() {
+  return [
+    {color:'#aaaaaa',lineWidth:2,value:16},
+    {color:'#aaaaaa',lineWidth:2,value:17},
+    {color:'#aaaaaa',lineWidth:2,value:18}];
+}
+
+var chart1 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,verticalSections:0},
+    horizontalLines:[],
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
-    timestampFormatter: function(date) {
-      function pad2(number) { return (number < 10 ? '0' : '') + number }
-      var ts = pad2(date.getHours()) + ':' + pad2(date.getMinutes());
-      if (PLOTMINUTES < 10) {
-        ts += ':' + pad2(date.getSeconds());
-      }
-      return ts;
-    },
     yMinFormatter: function(min, precision) {
-      return parseFloat(min).toFixed(precision).toString(); //+ String.fromCharCode(0x00b0) + "C";
+      return parseFloat(min).toFixed(precision).toString() + String.fromCharCode(0x00b0) + "C";
     },
     yMaxFormatter: function(max, precision) {
-      return parseFloat(max).toFixed(precision).toString(); //+ String.fromCharCode(0x00b0) + "C";
+      return parseFloat(max).toFixed(precision).toString() + String.fromCharCode(0x00b0) + "C";
     },
-    interpolation:'step',maxValue:PLOTMAX,minValue:PLOTMIN});
+    yRangeFunction:myYRangeFunction,
+    interpolation:'step'});
 
-chart.addTimeSeries(mytimeline, { strokeStyle: 'rgba(255, 0, 0, 1)',
+var chart2 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,verticalSections:0},
+    labels:{fillStyle:'#000000',fontSize:16,precision:0},
+    yMinFormatter: function(min, precision) {
+      return parseFloat(min).toFixed(precision).toString() + "hPa"; //+ String.fromCharCode(0x00b0) + "C";
+    },
+    yMaxFormatter: function(max, precision) {
+      return parseFloat(max).toFixed(precision).toString() + "hPa"; //+ String.fromCharCode(0x00b0) + "C";
+    },
+    yRangeFunction:myYRangeFunction,
+    interpolation:'step'});
+
+var chart3 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,verticalSections:0},
+    labels:{fillStyle:'#000000',fontSize:16,precision:0},
+    timestampFormatter:myTSFunction,
+    yMinFormatter: function(min, precision) {
+      return parseFloat(min).toFixed(precision).toString() + "RH%"; //+ String.fromCharCode(0x00b0) + "C";
+    },
+    yMaxFormatter: function(max, precision) {
+      return parseFloat(max).toFixed(precision).toString() + "RH%"; //+ String.fromCharCode(0x00b0) + "C";
+    },
+    yRangeFunction:myYRangeFunction,
+    interpolation:'step'});
+
+chart1.addTimeSeries(mytimeline, { strokeStyle: 'rgba(255, 0, 0, 1)',
     fillStyle: 'rgba(0, 255, 0, 0.0)', lineWidth: 3 });
-chart.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 255, 0, 1)',
+chart2.addTimeSeries(mytimeline3, { strokeStyle: 'rgba(0, 0, 255, 1)',
+    fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
+chart3.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 255, 0, 1)',
     fillStyle: 'rgba(0, 0, 255, 0.0)', lineWidth: 3 });
-chart.addTimeSeries(mytimeline3, { strokeStyle: 'rgba(0, 0, 255, 1)',
-    fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
-chart.addTimeSeries(mytimeline4, { strokeStyle: 'rgba(255, 195, 0, 1)',
-    fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
+//chart.addTimeSeries(mytimeline4, { strokeStyle: 'rgba(255, 195, 0, 1)',
+//    fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
 
 function myLoading() {
   console.log("Loading data...");
-  var canvas = document.getElementById("chart");
+  var canvas = document.getElementById("chart1");
   var context = canvas.getContext("2d");
   context.fillStyle = "black";
   context.font = "bold 48px Arial";
@@ -100,14 +132,6 @@ function myLoading() {
 
   if ( Number.isInteger(parseInt(GET.lookback)) ) {
     document.getElementById("in_lookback").value = parseFloat(GET.lookback);
-  }
-
-  if ( Number.isInteger(parseInt(GET.ymin)) ) {
-    document.getElementById("in_ymin").value = parseInt(GET.ymin);
-  }
-
-  if ( Number.isInteger(parseInt(GET.ymax)) ) {
-    document.getElementById("in_ymax").value = parseInt(GET.ymax);
   }
 }
 
@@ -138,10 +162,18 @@ ws.onmessage = function(e){
   if (firstRun && DELAYCOUNTS >= DELAYCOUNTSTRIGGER) {
     // delay by the current time minus the time of the NEWEST timepoint
     chartDelay = timeNow - ptTime;
-    chart.seriesSet.forEach(function(element,index,array) {
+    chart1.seriesSet.forEach(function(element,index,array) {
       element.timeSeries.data.forEach(adjustTimestamp);
     });
-    chart.streamTo(document.getElementById("chart"));
+    chart2.seriesSet.forEach(function(element,index,array) {
+      element.timeSeries.data.forEach(adjustTimestamp);
+    });
+    chart3.seriesSet.forEach(function(element,index,array) {
+      element.timeSeries.data.forEach(adjustTimestamp);
+    });
+    chart1.streamTo(document.getElementById("chart1"));
+    chart2.streamTo(document.getElementById("chart2"));
+    chart3.streamTo(document.getElementById("chart3"));
     console.log(Date.now() + ": plotting started!");
     firstRun = false;
   }
@@ -188,14 +220,8 @@ function mysend() {
     <p>Wonder what temperature it is at home? With Arduino, Websockets, and JS, wonder no more.
     <form style="width:270px;line-height: 1.5;border:4px solid black;padding:5px;">
       Minutes to look back:
-        <input id="in_lookback" name="lookback" value="600" type="text"
-            size=5 style="float:right;"><br>
-      Minimum temperature:
-        <input id="in_ymin" name="ymin" value="10" type="text"
-            size=5 style="float:right;"><br>
-      Maximum temperature:
-        <input id="in_ymax" name="ymax" value="25" type="text"
-            size=5 style="float:right;"><br>
+        <input id="in_lookback" name="lookback" type="text"
+            value=600 size=5 style="float:right;"><br>
       <div style="text-align:center;">
         <input type="submit" value="Adjust View"
             style="margin: 5px auto;font-weight:bold;">
@@ -206,12 +232,13 @@ function mysend() {
 <div>
   <p style="font-weight:bold;">
     <span style="color:red;">Temperature</span> &#x2014;
-    <span style="color:green;">Humidity, RH%</span> &#x2014;
     <span style="color:blue;">Pressure, hPa</span> &#x2014;
+    <span style="color:green;">Humidity, RH%</span> &#x2014;
     <span style="color:#FFC300;">MG2</span>
 </div>
 
-<div id="divchart" style="position:relative;">
+<div id="divchart" style="position:relative; border: 4px solid black;
+        width:600px;">
   <div style="position:absolute; left:5px; top:5px; z-index:1;
       color:white; font-weight:bold; font-family:sans-serif;
       background-color:black;">
@@ -219,9 +246,15 @@ function mysend() {
     <span id="cur_press"></span>hPa,
     <span id="cur_rh"></span>RH%
   </div>
-  <canvas id="chart" width="600" height="300"
-      style="position:absolute; z-index:0; border: 4px solid black;">
+  <canvas id="chart1" width="600" height="150"
+      style="position:relative; z-index:0; border:1px solid black;">
     </canvas>
+  <canvas id="chart2" width="600" height="150"
+      style="position:relative; z-index:0; border:1px solid black;">
+    </canvas>
+<canvas id="chart3" width="600" height="150"
+    style="position:relative; z-index:0; border:1px solid black;">
+  </canvas>
   </div>
 
 </body>
