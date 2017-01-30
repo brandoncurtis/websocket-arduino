@@ -54,8 +54,8 @@ var mytimeline4 = new TimeSeries();
 
 function myYRangeFunction(range) {
   // TODO implement your calculation using range.min and range.max
-  var min = Math.floor(range.min);
-  var max = Math.ceil(range.max);
+  var min = Math.floor(range.min-0.5);
+  var max = Math.ceil(range.max+0.5);
   return {min: min, max: max};
 }
 
@@ -68,15 +68,8 @@ function myTSFunction(date) {
   return ts;
 }
 
-function myYLineFunction() {
-  return [
-    {color:'#aaaaaa',lineWidth:2,value:16},
-    {color:'#aaaaaa',lineWidth:2,value:17},
-    {color:'#aaaaaa',lineWidth:2,value:18}];
-}
-
 var chart1 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
-    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,verticalSections:0},
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yAuto:true},
     horizontalLines:[],
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     yMinFormatter: function(min, precision) {
@@ -89,7 +82,7 @@ var chart1 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     interpolation:'step'});
 
 var chart2 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
-    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,verticalSections:0},
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yAuto:true},
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     yMinFormatter: function(min, precision) {
       return parseFloat(min).toFixed(precision).toString() + "hPa"; //+ String.fromCharCode(0x00b0) + "C";
@@ -101,7 +94,7 @@ var chart2 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     interpolation:'step'});
 
 var chart3 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
-    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,verticalSections:0},
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yAuto:true},
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     timestampFormatter:myTSFunction,
     yMinFormatter: function(min, precision) {

@@ -600,6 +600,16 @@
     }
 
     // Horizontal (value) dividers.
+
+    // automatic grid creation to delineate y-axis values
+    if (chartOptions.grid.yAuto) {
+      var ySections = 10;
+      for (var d = 1; ySections > 5; d++) {
+        ySections = (this.valueRange.max - this.valueRange.min) / d;
+      }
+      chartOptions.grid.verticalSections = ySections;
+    }
+
     for (var v = 1; v < chartOptions.grid.verticalSections; v++) {
       var gy = Math.round(v * dimensions.height / chartOptions.grid.verticalSections);
       if (chartOptions.grid.sharpLines) {
@@ -759,4 +769,3 @@
   exports.SmoothieChart = SmoothieChart;
 
 })(typeof exports === 'undefined' ? this : exports);
-
