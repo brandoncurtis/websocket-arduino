@@ -69,7 +69,7 @@ function myTSFunction(date) {
 }
 
 var chart1 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
-    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yAuto:true},
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
     horizontalLines:[],
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     yMinFormatter: function(min, precision) {
@@ -82,7 +82,7 @@ var chart1 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     interpolation:'step'});
 
 var chart2 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
-    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yAuto:true},
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     yMinFormatter: function(min, precision) {
       return parseFloat(min).toFixed(precision).toString() + "hPa"; //+ String.fromCharCode(0x00b0) + "C";
@@ -94,7 +94,7 @@ var chart2 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     interpolation:'step'});
 
 var chart3 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
-    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yAuto:true},
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     timestampFormatter:myTSFunction,
     yMinFormatter: function(min, precision) {

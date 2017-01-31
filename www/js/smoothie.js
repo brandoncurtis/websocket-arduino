@@ -601,14 +601,64 @@
 
     // Horizontal (value) dividers.
 
-    // automatic grid creation to delineate y-axis values
+    // Automatic grid creation to delineate y-axis values
     if (chartOptions.grid.yAuto) {
       var ySections = 10;
       for (var d = 1; ySections > 5; d++) {
         ySections = (this.valueRange.max - this.valueRange.min) / d;
       }
+      // This works great, if valueRange is rounded with ceil, floor
       chartOptions.grid.verticalSections = ySections;
     }
+
+    // attempt to create a version that works well when valueRange
+    // is not constrained to rounded ceiling and floor values
+    else if (chartOptions.grid.yCalc) {
+      chartOptions.grid.verticalSections = 0;
+
+      function myRound(number, precision) {
+        var factor = Math.pow(10, precision);
+        var tempNumber = number * factor;
+        var roundedTempNumber = Math.round(tempNumber);
+        return roundedTempNumber / factor;
+      };
+
+      function myOrder(n) {
+        var order = Math.round(Math.log(n) / Math.LN10 + 0.000000001);
+        return Math.pow(10,order);
+      }
+
+      var valueSpan = this.valueRange.max - this.valueRange.min;
+      var gridOrder = myOrder(valueSpan);
+      var gridResolution;
+      var gridIncrements = [1,2,5,10,20];
+      var gridLines = 0;
+      for (var i = 0; gridLines < 4; i++) {
+        gridResolution = gridOrder / gridIncrements[i];
+        gridLines = valueSpan / gridResolution;
+      }
+
+      var gridPrecision = -Math.log10(gridResolution);
+
+      var myLines = [];
+      var myVal = 0;
+      for (var m = -1; myVal < this.valueRange.max; m++) {
+        var thisLine = {};
+        myVal = myRound(this.valueRange.min,gridPrecision) + gridResolution * m;
+        thisLine.value = myVal;
+        thisLine.color = '#aaaaaa';
+        if (myVal % (gridOrder/2) == 0) {
+          thisLine.lineWidth = 3;
+        }
+        else {
+          thisLine.lineWidth = 1;
+        }
+        myLines.push(thisLine);
+        console.log(myVal);
+      }
+      chartOptions.horizontalLines = myLines;
+    }
+
 
     for (var v = 1; v < chartOptions.grid.verticalSections; v++) {
       var gy = Math.round(v * dimensions.height / chartOptions.grid.verticalSections);
