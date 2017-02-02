@@ -8,7 +8,7 @@ console.log = function() {}
 
 var PLOTWIDTH = 600;
 var PLOTHEIGHT = 300;
-var PLOTMINUTES = 600;
+var PLOTMINUTES = 1440;
 var DELAYTRIGGERMILLIS = 900;
 var DELAYCOUNTS = 0;
 var DELAYCOUNTSTRIGGER = 3;
@@ -96,12 +96,24 @@ var chart2 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
 var chart3 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
-    timestampFormatter:myTSFunction,
     yMinFormatter: function(min, precision) {
       return parseFloat(min).toFixed(precision).toString() + "RH%"; //+ String.fromCharCode(0x00b0) + "C";
     },
     yMaxFormatter: function(max, precision) {
       return parseFloat(max).toFixed(precision).toString() + "RH%"; //+ String.fromCharCode(0x00b0) + "C";
+    },
+    yRangeFunction:myYRangeFunction,
+    interpolation:'step'});
+
+var chart4 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
+    labels:{fillStyle:'#000000',fontSize:16,precision:0},
+    timestampFormatter:myTSFunction,
+    yMinFormatter: function(min, precision) {
+      return parseFloat(min).toFixed(precision).toString() + "arb"; //+ String.fromCharCode(0x00b0) + "C";
+    },
+    yMaxFormatter: function(max, precision) {
+      return parseFloat(max).toFixed(precision).toString() + "arb"; //+ String.fromCharCode(0x00b0) + "C";
     },
     yRangeFunction:myYRangeFunction,
     interpolation:'step'});
@@ -112,8 +124,8 @@ chart2.addTimeSeries(mytimeline3, { strokeStyle: 'rgba(0, 0, 255, 1)',
     fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
 chart3.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 255, 0, 1)',
     fillStyle: 'rgba(0, 0, 255, 0.0)', lineWidth: 3 });
-//chart.addTimeSeries(mytimeline4, { strokeStyle: 'rgba(255, 195, 0, 1)',
-//    fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
+chart4.addTimeSeries(mytimeline4, { strokeStyle: 'rgba(255, 195, 0, 1)',
+    fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
 
 function myLoading() {
   console.log("Loading data...");
@@ -164,9 +176,13 @@ ws.onmessage = function(e){
     chart3.seriesSet.forEach(function(element,index,array) {
       element.timeSeries.data.forEach(adjustTimestamp);
     });
+    chart4.seriesSet.forEach(function(element,index,array) {
+      element.timeSeries.data.forEach(adjustTimestamp);
+    });
     chart1.streamTo(document.getElementById("chart1"));
     chart2.streamTo(document.getElementById("chart2"));
     chart3.streamTo(document.getElementById("chart3"));
+    chart4.streamTo(document.getElementById("chart4"));
     console.log(Date.now() + ": plotting started!");
     firstRun = false;
   }
@@ -188,6 +204,7 @@ ws.onmessage = function(e){
     document.getElementById("cur_temp").innerHTML = ptVal.toFixed(1).toString();
     document.getElementById("cur_press").innerHTML = ptVal3.toFixed(1).toString();
     document.getElementById("cur_rh").innerHTML = ptVal2.toFixed(1).toString();
+    document.getElementById("cur_mg").innerHTML = ptVal4.toFixed(1).toString();
   }
 }
 
@@ -214,7 +231,7 @@ function mysend() {
     <form style="width:270px;line-height: 1.5;border:4px solid black;padding:5px;">
       Minutes to look back:
         <input id="in_lookback" name="lookback" type="text"
-            value=600 size=5 style="float:right;"><br>
+            value=1440 size=5 style="float:right;"><br>
       <div style="text-align:center;">
         <input type="submit" value="Adjust View"
             style="margin: 5px auto;font-weight:bold;">
@@ -227,7 +244,7 @@ function mysend() {
     <span style="color:red;">Temperature</span> &#x2014;
     <span style="color:blue;">Pressure, hPa</span> &#x2014;
     <span style="color:green;">Humidity, RH%</span> &#x2014;
-    <span style="color:#FFC300;">MG2</span>
+    <span style="color:#FFC300;">MG2, arb</span>
 </div>
 
 <div id="divchart" style="position:relative; border: 4px solid black;
@@ -237,17 +254,21 @@ function mysend() {
       background-color:black;">
     <span id="cur_temp"></span>&#x00B0;C,
     <span id="cur_press"></span>hPa,
-    <span id="cur_rh"></span>RH%
+    <span id="cur_rh"></span>RH%,
+    <span id="cur_mg"></span>arb
   </div>
   <canvas id="chart1" width="600" height="150"
-      style="position:relative; z-index:0; border:1px solid black;">
+            style="position:relative; z-index:0; border:1px solid black;">
     </canvas>
   <canvas id="chart2" width="600" height="150"
-      style="position:relative; z-index:0; border:1px solid black;">
+            style="position:relative; z-index:0; border:1px solid black;">
     </canvas>
-<canvas id="chart3" width="600" height="150"
-    style="position:relative; z-index:0; border:1px solid black;">
-  </canvas>
+  <canvas id="chart3" width="600" height="150"
+            style="position:relative; z-index:0; border:1px solid black;">
+    </canvas>
+  <canvas id="chart4" width="600" height="150"
+            style="position:relative; z-index:0; border:1px solid black;">
+    </canvas>
   </div>
 
 </body>
