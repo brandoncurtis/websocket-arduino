@@ -96,7 +96,7 @@ var chart2 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
 var chart3 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
-    timestampFormatter:myTSFunction,
+    //timestampFormatter:myTSFunction,
     yMinFormatter: function(min, precision) {
       return parseFloat(min).toFixed(precision).toString() + "g"; //+ String.fromCharCode(0x00b0) + "C";
     },
@@ -110,8 +110,8 @@ var chart4 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
     labels:{fillStyle:'#000000',fontSize:16,precision:0},
     timestampFormatter:myTSFunction,
-    minValue = 0;
-    maxValue = 1;
+    minValue = 0,
+    maxValue = 1,
     yRangeFunction:myYRangeFunction,
     interpolation:'step'});
 
