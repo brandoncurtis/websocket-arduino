@@ -200,7 +200,12 @@ ws.onmessage = function(e){
     document.getElementById("cur_temp").innerHTML = ptVal.toFixed(1).toString();
     document.getElementById("cur_ppm").innerHTML = ptVal2.toFixed(1).toString();
     document.getElementById("cur_g").innerHTML = ptVal3.toFixed(1).toString();
-    document.getElementById("cur_relay").innerHTML = ptVal4.toFixed(1).toString();
+    if (ptVal4) {
+      document.getElementById("cur_relay").innerHTML = "on"
+    }
+    else {
+      document.getElementById("cur_relay").innerHTML = "off"
+    }
   }
 }
 
@@ -239,8 +244,8 @@ function mysend() {
   <p style="font-weight:bold;">
     <span style="color:red;">Temperature</span> &#x2014;
     <span style="color:blue;">DO, ppm</span> &#x2014;
-    <span style="color:green;">Mass, Rg</span> &#x2014;
-    <span style="color:#FFC300;">Relay, 1/0</span> -->
+    <span style="color:green;">Mass, g</span> &#x2014;
+    <span style="color:#FFC300;">Relay, 1/0</span>
 </div>
 
 <div id="divchart" style="position:relative; border: 4px solid black;
