@@ -654,7 +654,7 @@
           thisLine.lineWidth = 1;
         }
         myLines.push(thisLine);
-        console.log(myVal);
+        //console.log(myVal);
       }
       chartOptions.horizontalLines = myLines;
     }
