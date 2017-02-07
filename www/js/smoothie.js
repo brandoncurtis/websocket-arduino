@@ -648,7 +648,7 @@
         thisLine.value = myVal;
         thisLine.color = '#aaaaaa';
         if (myVal % (gridOrder/2) == 0) {
-          thisLine.lineWidth = 3;
+          thisLine.lineWidth = 1;
         }
         else {
           thisLine.lineWidth = 1;
