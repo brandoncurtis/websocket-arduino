@@ -50,7 +50,7 @@ else {
 var mytimeline = new TimeSeries();
 var mytimeline2 = new TimeSeries();
 var mytimeline3 = new TimeSeries();
-//var mytimeline4 = new TimeSeries();
+var mytimeline4 = new TimeSeries();
 
 function myYRangeFunction(range) {
   // TODO implement your calculation using range.min and range.max
@@ -106,18 +106,14 @@ var chart3 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     yRangeFunction:myYRangeFunction,
     interpolation:'step'});
 
-//var chart4 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
-//     grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
-//     labels:{fillStyle:'#000000',fontSize:16,precision:0},
-//     timestampFormatter:myTSFunction,
-//     yMinFormatter: function(min, precision) {
-//       return parseFloat(min).toFixed(precision).toString() + "arb"; //+ String.fromCharCode(0x00b0) + "C";
-//     },
-//     yMaxFormatter: function(max, precision) {
-//       return parseFloat(max).toFixed(precision).toString() + "arb"; //+ String.fromCharCode(0x00b0) + "C";
-//     },
-//     yRangeFunction:myYRangeFunction,
-//     interpolation:'step'});
+var chart4 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
+    grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
+    labels:{fillStyle:'#000000',fontSize:16,precision:0},
+    timestampFormatter:myTSFunction,
+    minValue = 0;
+    maxValue = 1;
+    yRangeFunction:myYRangeFunction,
+    interpolation:'step'});
 
 chart1.addTimeSeries(mytimeline, { strokeStyle: 'rgba(255, 0, 0, 1)',
     fillStyle: 'rgba(0, 255, 0, 0.0)', lineWidth: 3 });
@@ -125,8 +121,8 @@ chart2.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 0, 255, 1)',
     fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
 chart3.addTimeSeries(mytimeline3, { strokeStyle: 'rgba(0, 255, 0, 1)',
     fillStyle: 'rgba(0, 0, 255, 0.0)', lineWidth: 3 });
-//chart4.addTimeSeries(mytimeline4, { strokeStyle: 'rgba(255, 195, 0, 1)',
-//    fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
+chart4.addTimeSeries(mytimeline4, { strokeStyle: 'rgba(255, 195, 0, 1)',
+   fillStyle: 'rgba(255, 0, 0, 0.0)', lineWidth: 3 });
 
 function myLoading() {
   console.log("Loading data...");
@@ -177,13 +173,13 @@ ws.onmessage = function(e){
     chart3.seriesSet.forEach(function(element,index,array) {
       element.timeSeries.data.forEach(adjustTimestamp);
     });
-    //chart4.seriesSet.forEach(function(element,index,array) {
-    //  element.timeSeries.data.forEach(adjustTimestamp);
-    //});
+    chart4.seriesSet.forEach(function(element,index,array) {
+     element.timeSeries.data.forEach(adjustTimestamp);
+    });
     chart1.streamTo(document.getElementById("chart1"));
     chart2.streamTo(document.getElementById("chart2"));
     chart3.streamTo(document.getElementById("chart3"));
-    //chart4.streamTo(document.getElementById("chart4"));
+    chart4.streamTo(document.getElementById("chart4"));
     console.log(Date.now() + ": plotting started!");
     firstRun = false;
   }
@@ -191,21 +187,21 @@ ws.onmessage = function(e){
   timeLastMsg = Date.now();
   //console.log(e.data);
   var line = e.data.split(',');
-  if (line.length == 4) {
+  if (line.length == 5) {
     ptTime = parseFloat(line[0])*1000 + chartDelay;
     ptVal = parseFloat(line[1]);
     ptVal2 = parseFloat(line[2]);
     ptVal3 = parseFloat(line[3]);
-    //ptVal4 = parseFloat(line[4]);
+    ptVal4 = parseFloat(line[4]);
     mytimeline.append(ptTime, ptVal);
     mytimeline2.append(ptTime, ptVal2);
     mytimeline3.append(ptTime, ptVal3);
-    //mytimeline4.append(ptTime, ptVal4);
+    mytimeline4.append(ptTime, ptVal4);
     console.log(ptTime + ',' + ptVal + ',' + ptVal2+ ',' + ptVal3+ ',' + ptVal4);
     document.getElementById("cur_temp").innerHTML = ptVal.toFixed(1).toString();
     document.getElementById("cur_ppm").innerHTML = ptVal2.toFixed(1).toString();
     document.getElementById("cur_g").innerHTML = ptVal3.toFixed(1).toString();
-    //document.getElementById("cur_mg").innerHTML = ptVal4.toFixed(1).toString();
+    document.getElementById("cur_relay").innerHTML = ptVal4.toFixed(1).toString();
   }
 }
 
@@ -244,8 +240,8 @@ function mysend() {
   <p style="font-weight:bold;">
     <span style="color:red;">Temperature</span> &#x2014;
     <span style="color:blue;">DO, ppm</span> &#x2014;
-    <span style="color:green;">Mass, Rg</span> <!-- &#x2014;
-    <span style="color:#FFC300;">MG2, arb</span> -->
+    <span style="color:green;">Mass, Rg</span> &#x2014;
+    <span style="color:#FFC300;">Relay, 1/0</span> -->
 </div>
 
 <div id="divchart" style="position:relative; border: 4px solid black;
@@ -256,7 +252,7 @@ function mysend() {
     <span id="cur_temp"></span>&#x00B0;C,
     <span id="cur_ppm"></span>ppm,
     <span id="cur_g"></span>g,
-    <!-- <span id="cur_mg"></span>arb -->
+    <span id="cur_relay"></span>
   </div>
   <canvas id="chart1" width="600" height="150"
             style="position:relative; z-index:0; border:1px solid black;">
@@ -267,9 +263,9 @@ function mysend() {
   <canvas id="chart3" width="600" height="150"
             style="position:relative; z-index:0; border:1px solid black;">
     </canvas>
-  <!-- <canvas id="chart4" width="600" height="150"
+  <canvas id="chart4" width="600" height="150"
             style="position:relative; z-index:0; border:1px solid black;">
-    </canvas> -->
+    </canvas>
   </div>
 
 </body>
