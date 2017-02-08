@@ -59,15 +59,10 @@ function myRound(number, precision) {
   return roundedTempNumber / factor;
 };
 
-function myOrder(n) {
-  var order = Math.round(Math.log(n) / Math.LN10 + 0.000000001);
-  return Math.pow(10,order);
-}
-
 function myYRangeFunction(range) {
   var gridres = Math.abs((range.max-range.min)/5);;
-  var min = myRound(range.min-gridres, myOrder(gridres));
-  var max = myRound(range.max+gridres, myOrder(gridres));
+  var min = Math.floor(range.min-gridres);
+  var max = Math.ceil(range.max+gridres);
   return {min: min, max: max};
 }
 
