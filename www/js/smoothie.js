@@ -631,7 +631,7 @@
       var valueSpan = this.valueRange.max - this.valueRange.min;
       var gridOrder = myOrder(valueSpan);
       var gridResolution;
-      var gridIncrements = [1,2,5,10,20];
+      var gridIncrements = [1,2,5,10,20,50,100,200,500,1000,5000];
       var gridLines = 0;
       for (var i = 0; gridLines < 4; i++) {
         gridResolution = gridOrder / gridIncrements[i];
