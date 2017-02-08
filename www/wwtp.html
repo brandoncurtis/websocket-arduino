@@ -53,7 +53,6 @@ var mytimeline3 = new TimeSeries();
 var mytimeline4 = new TimeSeries();
 
 function myYRangeFunction(range) {
-  // TODO implement your calculation using range.min and range.max
   var gridres = Math.abs((range.max-range.min)/5);;
   var min = Math.floor(range.min-gridres);
   var max = Math.ceil(range.max+gridres);
@@ -104,7 +103,7 @@ var chart3 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     yMaxFormatter: function(max, precision) {
       return parseFloat(max).toFixed(precision).toString() + "g"; //+ String.fromCharCode(0x00b0) + "C";
     },
-    yRangeFunction:myYRangeFunction,
+    //yRangeFunction:myYRangeFunction,
     interpolation:'step'});
 
 var chart4 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
