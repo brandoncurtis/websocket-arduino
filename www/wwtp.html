@@ -197,7 +197,7 @@ ws.onmessage = function(e){
     ptTime = parseFloat(line[0])*1000 + chartDelay;
     ptVal = parseFloat(line[1]);
     ptVal2 = parseFloat(line[2]);
-    ptVal3 = parseFloat(Math.abs(line[3]));
+    ptVal3 = parseFloat(line[3]);
     ptVal4 = parseFloat(line[4]);
     mytimeline.append(ptTime, ptVal);
     mytimeline2.append(ptTime, ptVal2);
