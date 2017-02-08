@@ -52,10 +52,22 @@ var mytimeline2 = new TimeSeries();
 var mytimeline3 = new TimeSeries();
 var mytimeline4 = new TimeSeries();
 
+function myRound(number, precision) {
+  var factor = Math.pow(10, precision);
+  var tempNumber = number * factor;
+  var roundedTempNumber = Math.round(tempNumber);
+  return roundedTempNumber / factor;
+};
+
+function myOrder(n) {
+  var order = Math.round(Math.log(n) / Math.LN10 + 0.000000001);
+  return Math.pow(10,order);
+}
+
 function myYRangeFunction(range) {
   var gridres = Math.abs((range.max-range.min)/5);;
-  var min = Math.floor(range.min-gridres);
-  var max = Math.ceil(range.max+gridres);
+  var min = myRound(range.min-gridres, myOrder(gridres));
+  var max = myRound(range.max+gridres, myOrder(gridres));
   return {min: min, max: max};
 }
 
