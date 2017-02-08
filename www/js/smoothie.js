@@ -642,7 +642,7 @@
 
       var myLines = [];
       var myVal = '';
-      for (var m = -1; myVal == '' || myVal < this.valueRange.max; m++) {
+      for (var m = -1; myVal != '' && myVal < this.valueRange.max; m++) {
         var thisLine = {};
         myVal = myRound(this.valueRange.min,gridPrecision) + gridResolution * m;
         thisLine.value = myVal;
