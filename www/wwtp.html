@@ -55,6 +55,7 @@ var mytimeline4 = new TimeSeries();
 function myYRangeFunction(range) {
   // TODO implement your calculation using range.min and range.max
   var gridres = (range.max-range.min)/5;
+  var min = Math.floor(range.min-gridres);
   var max = Math.ceil(range.max+gridres);
   return {min: min, max: max};
 }
