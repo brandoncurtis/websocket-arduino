@@ -641,7 +641,7 @@
       var gridPrecision = -Math.log10(gridResolution);
 
       var myLines = [];
-      var myVal = myRound(this.valueRange.min,gridPrecision) + gridResolution;
+      var myVal = myRound(this.valueRange.min,gridPrecision);
       for (var m = -1; myVal < this.valueRange.max; m++) {
         var thisLine = {};
         myVal = myRound(this.valueRange.min,gridPrecision) + gridResolution * m;
