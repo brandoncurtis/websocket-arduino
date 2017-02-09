@@ -102,15 +102,15 @@ var chart2 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
 
 var chart3 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
-    labels:{fillStyle:'#000000',fontSize:16,precision:2},
+    labels:{fillStyle:'#000000',fontSize:16,precision:0},
     timestampFormatter:myTSFunction,
     yMinFormatter: function(min, precision) {
       return parseFloat(min).toFixed(precision).toString() + "lbs"; //+ String.fromCharCode(0x00b0) + "C";
     },
     yMaxFormatter: function(max, precision) {
+      return parseFloat(max).toFixed(precision).toString() + "lbs"; //+ String.fromCharCode(0x00b0) + "C";
     },
     yRangeFunction:myYRangeFunction,
-    return parseFloat(max).toFixed(precision).toString() + "lbs"; //+ String.fromCharCode(0x00b0) + "C";
     interpolation:'step'});
 
 var chart4 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
