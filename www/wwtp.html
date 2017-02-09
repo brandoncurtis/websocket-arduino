@@ -102,15 +102,15 @@ var chart2 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
 
 var chart3 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
     grid:{fillStyle:'#ffffff',millisPerLine:MILLISPERLINE,yCalc:true},
-    labels:{fillStyle:'#000000',fontSize:16,precision:0},
+    labels:{fillStyle:'#000000',fontSize:16,precision:2},
     timestampFormatter:myTSFunction,
     yMinFormatter: function(min, precision) {
       return parseFloat(min).toFixed(precision).toString() + "lbs"; //+ String.fromCharCode(0x00b0) + "C";
     },
     yMaxFormatter: function(max, precision) {
-      return parseFloat(max).toFixed(precision).toString() + "lbs"; //+ String.fromCharCode(0x00b0) + "C";
     },
     yRangeFunction:myYRangeFunction,
+    return parseFloat(max).toFixed(precision).toString() + "lbs"; //+ String.fromCharCode(0x00b0) + "C";
     interpolation:'step'});
 
 var chart4 = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
@@ -206,7 +206,7 @@ ws.onmessage = function(e){
     console.log(ptTime + ',' + ptVal + ',' + ptVal2+ ',' + ptVal3+ ',' + ptVal4);
     document.getElementById("cur_temp").innerHTML = ptVal.toFixed(1).toString();
     document.getElementById("cur_ppm").innerHTML = ptVal2.toFixed(2).toString();
-    document.getElementById("cur_g").innerHTML = ptVal3.toFixed(0).toString();
+    document.getElementById("cur_lbs").innerHTML = ptVal3.toFixed(2).toString();
     if (ptVal4) {
       document.getElementById("cur_relay").innerHTML = "relay on"
     }
