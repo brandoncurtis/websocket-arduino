@@ -4,98 +4,13 @@
 <script src="js/reconnecting-websocket.js"></script>
 
 <script>
-//console.log = function() {}
-
-var PLOTWIDTH = 600;
-var PLOTHEIGHT = 300;
-var PLOTMINUTES = 0.25;
-var PLOTMAX = 1000;
-var PLOTMIN = 0;
-
-// parse arguments from URL
-// www.mysite.com/my_app.html?x=1234
-var GET = {};
-var query = window.location.search.substring(1).split("&");
-for (var i = 0, max = query.length; i < max; i++) {
-  if (query[i] === "") // check for trailing & with no param
-    continue;
-  var param = query[i].split("=");
-  GET[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || "");
-}
-
 var ws = new ReconnectingWebSocket('ws://brandoncurtis.com:10015/');
 
-if ( Number.isInteger(parseInt(GET.lookback)) ) {
-  PLOTMINUTES = parseFloat(GET.lookback);
-}
-
-if ( Number.isInteger(parseInt(GET.ymax)) ) {
-  PLOTMAX = parseFloat(GET.ymax);
-}
-
-if ( Number.isInteger(parseInt(GET.ymin)) ) {
-  PLOTMIN = parseFloat(GET.ymin);
-}
-
-var PLOTMILLIS = PLOTMINUTES*60000
-var MILLISPERLINE = PLOTMILLIS / 5;
-
-// create the chart stuff
-var mytimeline = new TimeSeries();
-var mytimeline2 = new TimeSeries();
-
-var chart = new SmoothieChart({millisPerPixel:PLOTMILLIS/PLOTWIDTH,
-    grid:{fillStyle:'#ffffff', millisPerLine:MILLISPERLINE,verticalSections: (PLOTMAX-PLOTMIN)/100},
-    labels:{fillStyle:'#000000', fontSize:16, precision:0},
-    timestampFormatter: function(date) {
-      function pad2(number) { return (number < 10 ? '0' : '') + number }
-      return pad2(date.getHours()) + ':' + pad2(date.getMinutes()) + ':' + pad2(date.getSeconds());
-    },
-    yMinFormatter: function(min, precision) {
-      return parseFloat(min).toFixed(precision).toString();
-    },
-    yMaxFormatter: function(max, precision) {
-      return parseFloat(max).toFixed(precision).toString();
-    },
-    interpolation:'step',maxValue:PLOTMAX,minValue:PLOTMIN});
-
-chart.addTimeSeries(mytimeline, { strokeStyle: 'rgba(0, 255, 0, 1)',
-    fillStyle: 'rgba(0, 255, 0, 0.3)', lineWidth: 4 });
-chart.addTimeSeries(mytimeline2, { strokeStyle: 'rgba(0, 0, 255, 1)',
-    fillStyle: 'rgba(0, 0, 255, 0.15)', lineWidth: 1 });
-
-function myLoading() {
-  if ( Number.isInteger(parseInt(GET.lookback)) ) {
-    document.getElementById("in_lookback").value = parseFloat(GET.lookback);
-  }
-  if ( Number.isInteger(parseInt(GET.ymin)) ) {
-    document.getElementById("in_ymin").value = parseInt(GET.ymin);
-  }
-  if ( Number.isInteger(parseInt(GET.ymax)) ) {
-    document.getElementById("in_ymax").value = parseInt(GET.ymax);
-  }
-}
-
-var firstRun = true;
-
-// put in the data for the chart
 ws.onmessage = function(e){
-  var line = e.data.split(',');
-  if (line.length == 2) {
-    var ptTime = Date.now();
-    var ptVal = parseFloat(line[1]);
-    var ptVal2 = parseFloat(line[0]);
-    mytimeline.append(ptTime, ptVal);
-    mytimeline2.append(ptTime, ptVal2);
-    console.log(ptTime + ',' + ptVal + ',' + ptVal2);
-    document.getElementById("curVal").innerHTML = ptVal.toString();
-
-    if (firstRun) {
-      chart.streamTo(document.getElementById("chart"));
-      console.log("plotting started!");
-      firstRun = false;
-    }
-  }
+  // called when a message arrives
+  var msg = e.data;
+  document.getElementById("msgs").innerHTML = msg;
+  console.log(msg);
 }
 
 function mysend() {
@@ -134,6 +49,8 @@ function mysend() {
       </div>
     </form>
   </div>
+
+<div id="msgs"></div>
 
 <div id="divchart" style="position:relative;">
   <div style="position:absolute; left:5px; top:5px; z-index:1;
