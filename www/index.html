@@ -24,7 +24,7 @@ for (var i = 0, max = query.length; i < max; i++) {
   GET[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || "");
 }
 
-var ws = new ReconnectingWebSocket('ws://bcurtis-router.homenet.org:8765/');
+var ws = new ReconnectingWebSocket('ws://brandoncurtis.com:10003/');
 
 if ( Number.isInteger(parseInt(GET.lookback)) ) {
   PLOTMINUTES = parseFloat(GET.lookback);
